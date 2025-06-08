@@ -19,7 +19,7 @@ pub(crate) struct Page {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     if env::args().any(|arg| arg == "--watch") {
         build()?;
-        pichu::watch("content", |paths| {
+        pichu::watch(["content", "assets"], |paths| {
             println!("Rebuilding... (changed: {:?})", paths);
             if let Err(e) = build() {
                 eprintln!("Build error: {}", e);

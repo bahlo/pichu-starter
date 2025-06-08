@@ -1,4 +1,4 @@
-use std::fs;
+use std::{env, fs};
 
 use chrono::NaiveDate;
 use serde::Deserialize;
@@ -17,6 +17,21 @@ pub(crate) struct Page {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    if env::args().any(|arg| arg == "--watch") {
+        build()?;
+        pichu::watch("content", |paths| {
+            println!("Rebuilding... (changed: {:?})", paths);
+            if let Err(e) = build() {
+                eprintln!("Build error: {}", e);
+            }
+        })?;
+    } else {
+        build()?;
+    }
+    Ok(())
+}
+
+fn build() -> Result<(), Box<dyn std::error::Error>> {
     fs::remove_dir_all("dist")?;
 
     let css_hash = pichu::render_sass("assets/scss/main.scss", "dist/main.css")?;
